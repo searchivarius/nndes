@@ -37,14 +37,14 @@ template <typename T, int A = NNDES_MATRIX_ALIGN>
 class Dataset
 {
     int dim;
-    size_t N;
-    int stride;
+    int N;
+    size_t stride;
     char *dims;
 public:
     typedef T value_type;
     static const int ALIGN = A;
 
-    void reset (int _dim, size_t _N)
+    void reset (int _dim, int _N)
     {
         BOOST_ASSERT((ALIGN % sizeof(T)) == 0);
         dim = _dim;
@@ -63,21 +63,21 @@ public:
     }
     
     Dataset () :dim(0), N(0), dims(NULL) {}
-    Dataset (int _dim, size_t _N) : dims(NULL) { reset(_dim, _N); }
+    Dataset (int _dim, int _N) : dims(NULL) { reset(_dim, _N); }
     ~Dataset () { if (dims != NULL) delete[] dims; }
 
     /// Access the ith vector.
-    const T *operator [] (size_t i) const {
+    const T *operator [] (int i) const {
         return (const T *)(dims + i * stride);
     }
 
     /// Access the ith vector.
-    T *operator [] (size_t i) {
+    T *operator [] (int i) {
         return (T *)(dims + i * stride);
     }
 
     int getDim () const {return dim; }
-    size_t size () const {return N; }
+    int size () const {return N; }
 
     void load (const std::string &path) {
         std::ifstream is(path.c_str(), std::ios::binary);
@@ -88,7 +88,7 @@ public:
         BOOST_VERIFY(header[0] == sizeof(T));
         reset(header[2], header[1]);
         char *off = dims;
-        for (size_t i = 0; i < N; ++i) {
+        for (int i = 0; i < N; ++i) {
             is.read(off, sizeof(T) * dim);
             off += stride;
         }
@@ -104,11 +104,11 @@ public:
         size -= skip;
         int line = sizeof(float) * _dim + gap;
         BOOST_VERIFY(size % line == 0);
-        size_t _N =  size / line;
+        int _N =  size / line;
         reset(_dim, _N);
         is.seekg(skip, std::ios::beg);
         char *off = dims;
-        for (unsigned i = 0; i < N; ++i) {
+        for (int i = 0; i < N; ++i) {
             is.read(off, sizeof(T) * dim);
             is.seekg(gap, std::ios::cur);
             off += stride;
