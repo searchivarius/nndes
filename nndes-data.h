@@ -36,14 +36,15 @@ T sqr (T a) {
 template <typename T, int A = NNDES_MATRIX_ALIGN> 
 class Dataset
 {
-    int dim, N;
+    int dim;
+    size_t N;
     int stride;
     char *dims;
 public:
     typedef T value_type;
     static const int ALIGN = A;
 
-    void reset (int _dim, int _N)
+    void reset (int _dim, size_t _N)
     {
         BOOST_ASSERT((ALIGN % sizeof(T)) == 0);
         dim = _dim;
@@ -107,7 +108,7 @@ public:
         reset(_dim, _N);
         is.seekg(skip, std::ios::beg);
         char *off = dims;
-        for (int i = 0; i < N; ++i) {
+        for (unsigned i = 0; i < N; ++i) {
             is.read(off, sizeof(T) * dim);
             is.seekg(gap, std::ios::cur);
             off += stride;
