@@ -63,21 +63,21 @@ public:
     }
     
     Dataset () :dim(0), N(0), dims(NULL) {}
-    Dataset (int _dim, int _N) : dims(NULL) { reset(_dim, _N); }
+    Dataset (int _dim, size_t _N) : dims(NULL) { reset(_dim, _N); }
     ~Dataset () { if (dims != NULL) delete[] dims; }
 
     /// Access the ith vector.
-    const T *operator [] (int i) const {
+    const T *operator [] (size_t i) const {
         return (const T *)(dims + i * stride);
     }
 
     /// Access the ith vector.
-    T *operator [] (int i) {
+    T *operator [] (size_t i) {
         return (T *)(dims + i * stride);
     }
 
     int getDim () const {return dim; }
-    int size () const {return N; }
+    size_t size () const {return N; }
 
     void load (const std::string &path) {
         std::ifstream is(path.c_str(), std::ios::binary);
@@ -88,7 +88,7 @@ public:
         BOOST_VERIFY(header[0] == sizeof(T));
         reset(header[2], header[1]);
         char *off = dims;
-        for (int i = 0; i < N; ++i) {
+        for (size_t i = 0; i < N; ++i) {
             is.read(off, sizeof(T) * dim);
             off += stride;
         }
@@ -104,7 +104,7 @@ public:
         size -= skip;
         int line = sizeof(float) * _dim + gap;
         BOOST_VERIFY(size % line == 0);
-        int _N =  size / line;
+        size_t _N =  size / line;
         reset(_dim, _N);
         is.seekg(skip, std::ios::beg);
         char *off = dims;
