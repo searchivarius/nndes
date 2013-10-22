@@ -124,7 +124,7 @@ namespace nndes {
                 // The following loops are bloated to deal with all
                 // the experimental setups.  Otherwise they should
                 // be really simple.
-                if (option & GRAPH_KNN) {
+                if (option & (GRAPH_KNN | GRAPH_BOTH)) {
                     BOOST_FOREACH(int j, nn_new[i]) {
                         BOOST_FOREACH(int k, nn_new[i]) {
                             if (j >= k) continue;
@@ -135,7 +135,7 @@ namespace nndes {
                         }
                     }
                 }
-                if (option & GRAPH_RNN) {
+                if (option & (GRAPH_RNN | GRAPH_BOTH)) {
                     BOOST_FOREACH(int j, rnn_new[i]) {
                         BOOST_FOREACH(int k, rnn_new[i]) {
                             if (j >= k) continue;
