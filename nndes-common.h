@@ -18,6 +18,11 @@
 #include <boost/foreach.hpp>
 #include <boost/progress.hpp>
 #include <boost/random.hpp>
+#define USE_SPINLOCK 1
+#ifdef USE_SPINLOCK
+#include <mutex>
+#include "boost/smart_ptr/detail/spinlock.hpp"
+#endif
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -36,6 +41,29 @@ namespace nndes {
 #endif
 
 #if NEED_LOCK
+#ifdef USE_SPINLOCK
+     class Mutex {
+         boost::detail::spinlock lock;
+     public:
+         void init () {
+         }
+         void set () {
+             lock.lock();
+         }
+ 
+         void unset () {
+             lock.unlock();
+         }
+         friend class ScopedLock;
+     };
+
+     class ScopedLock: public std::lock_guard<boost::detail::spinlock> {
+     public:
+         ScopedLock (Mutex &mutex): std::lock_guard<boost::detail::spinlock>(mutex.lock) {
+ 
+         }
+     };
+#else
     class Mutex {
         omp_lock_t *lock;
     public:
@@ -75,6 +103,7 @@ namespace nndes {
             omp_unset_lock(lock);
         }
     };
+#endif
 #else
     class Mutex {
     public:
